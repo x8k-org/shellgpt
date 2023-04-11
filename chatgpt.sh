@@ -1,5 +1,7 @@
-#!/bin/bash
-source ~/.chatgpt/chatgpt
+#!/usr/bin/env bash
+
+source "${HOME}/.chatgpt/chatgpt"
+source ./chatgpt_lib.sh
 
 #MODEL="text-davinci-003"
 #TEMPERATURE="0"
@@ -19,7 +21,7 @@ while [[ $# -gt 0 ]]; do
       shift
       shift
       ;;
-    -m|--max-tokens)
+    -k|--max-tokens)
       MAX_TOKEN="$2"
       shift
       shift
@@ -37,57 +39,18 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [ -z "$PROMPT" ]
-then
-      echo "prompt cannot be null"
-      exit 1
-fi
+check_config
 
-if [ -z "$TEMPERATURE" ]
-then
-      echo "temperature cannot be null"
-      exit 1
-fi
-
-if [ -z "$MAX_TOKEN" ]
-then
-      echo "max-token cannot be null"
-      exit 1
-fi
-
-if [ -z "$MODEL" ]
-then
-      echo "model cannot be null"
-      exit 1
-fi
-
-if [ -z "$BEARER" ]
-then
-      echo "bearer cannot be null"
-      exit 1
-fi
-
-curl=`cat <<EOS
-curl https://api.openai.com/v1/completions \
-  -H 'Content-Type: application/json' \
-  -H "Authorization: Bearer $BEARER" \
-  -d '{
-  "model": "$MODEL",
-  "prompt": "$PROMPT",
-  "max_tokens": $MAX_TOKEN,
-  "temperature": $TEMPERATURE
-
-}' \
---insecure 2>/tmp/chatgpt_err | jq '.choices[]'.text | cut -c 6-
-EOS`
-
-result=`eval ${curl}`
+echo "$CURLSTRING"
+result=$(eval curl "$CURLSTRING")
 exit_code=$?
 
+check_chat_gpt_error "$result"
+
 if [ $exit_code -ne 0 ]; then
-    cat /tmp/chatgpt_err
+    cat /tmp/curl_err
     exit $exit_code
 else
-    echo -e $result | sed '$ s/.$//'
+    ppchatgpt "$result"
 fi
 exit 0
