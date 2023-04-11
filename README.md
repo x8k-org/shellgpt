@@ -27,7 +27,7 @@ BEARER expects your API Token that you can create at https://beta.openai.com/acc
 MODEL="text-davinci-003"
 TEMPERATURE="0"
 MAX_TOKEN=4000
-BEARER="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"
+BEARER="sk-GgaCYH4z_THIS_IS_A_FAKE_Jk2g9BJNkrOp5s"
 ```
 
 ## How to use shellgpt
